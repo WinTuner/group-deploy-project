@@ -1,0 +1,20 @@
+# CODEOWNERS — ผูก code กับเจ้าของ (PM ไม่มี service code)
+# เปลี่ยน @member-N เป็น GitHub username จริงของแต่ละคนก่อน push
+
+# นัท (PM, คนที่ 1): pipeline + docs เท่านั้น
+.github/ @member-1
+docker-compose.yml @member-1
+docs/ @member-1
+
+# Dev (คนที่ 2): product
+services/product-service/ @member-2
+
+# Dev (คนที่ 3): order
+services/order-service/ @member-3
+
+# Tester (คนที่ 4): notification
+services/notification-service/ @member-4
+
+# Front (คนที่ 5): auth + frontend (Login end-to-end)
+services/auth-service/ @member-5
+frontend/ @member-5
