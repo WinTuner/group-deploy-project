@@ -3,7 +3,7 @@ name: CI/CD to GHCR
 on:
   push:
     branches:
-      - main
+      - '**'
     tags:
       - 'v*'
   pull_request:
@@ -25,7 +25,7 @@ jobs:
         with:
           node-version: 20
           cache: npm
-          cache-dependency-path: services/auth-service/package.json
+          cache-dependency-path: services/${{ matrix.service }}/package-lock.json
       - name: Install deps
         run: npm install
         working-directory: services/${{ matrix.service }}
@@ -35,7 +35,7 @@ jobs:
 
   build-push:
     needs: test
-    if: github.event_name == 'push'
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v'))
     runs-on: ubuntu-latest
     permissions:
       contents: read
