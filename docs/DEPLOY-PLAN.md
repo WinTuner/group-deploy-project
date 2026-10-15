@@ -3,7 +3,7 @@
 ## 1. บทบาทสมาชิก (5 คน)
 | คน | Role | Service รับผิดชอบ | สิ่งที่ต้องอธิบายหน้าชั้น |
 |----|------|-------------------|--------------------------|
-| 1 (นัท) | **PM** | pipeline + `docs/` เท่านั้น (no service code) | แผน deploy, pipeline stages, Test Spec, versioning |
+| 1 (นัท) | **PM** | `cart-service` + pipeline + `docs/` | แผน deploy, pipeline stages, Test Spec, versioning |
 | 2 | Developer | `product-service` | CRUD + Unit Test + Dockerfile ของตัวเอง |
 | 3 | Developer | `order-service` | CRUD + Unit Test + แก้ build fail |
 | 4 | Tester | `notification-service` + QA pipeline | Test Case automation, ดูผล build/test บน Actions |
@@ -12,14 +12,14 @@
 ## 2. สถาปัตยกรรม
 ```
 [frontend :8080] ──POST /login──→ [auth-service :3001] (JWT)
-[product :3002] [order :3003] [noti :3004]  (REST แยกอิสระ, แยก image กัน)
+[product :3002] [order :3003] [noti :3004] [cart :3005]  (REST แยกอิสระ, แยก image กัน)
 ```
 - แยก repo-path ต่อ service → แยก Dockerfile → แยก image `ghcr.io/<owner>/group-<service>`
 - เงื่อนไขครบ: Login มี (API + หน้าเว็บ), Automation ผ่าน GitHub Actions, Push ขึ้น Container Registry, แยก service ต่อคน
 
 ## 3. Pipeline (`.github/workflows/ci-cd.yml`) — 2 jobs
-1. **test**: matrix 4 services → `npm install && npm test` ทุก PR/push (fail = หยุด ไม่ build)
-2. **build-push**: เฉพาะ `push` (PR ไม่ push) → login GHCR → buildx → push 5 images พร้อม tags:
+1. **test**: matrix 5 services → `npm install && npm test` ทุก PR/push (fail = หยุด ไม่ build)
+2. **build-push**: เฉพาะ `push` (PR ไม่ push) → login GHCR → buildx → push 6 images พร้อม tags:
    - `latest` (branch main), `:sha-<short>` (ทุก commit), `:vX.Y.Z` (ตอนติด tag)
 - Permissions: `packages: write` (บังคับ ไม่งั้น push GHCR 403)
 
@@ -29,7 +29,7 @@
 git init && git add . && git commit -m "feat: 5 microservices + pipeline" 
 git branch -M main && git remote add origin https://github.com/<owner>/<repo>.git
 git push -u origin main
-# ดูผล: แท็บ Actions → job test/build-push เขียว → แท็บ Packages มี 5 images
+# ดูผล: แท็บ Actions → job test/build-push เขียว → แท็บ Packages มี 6 images
 # Release version (บังคับโชว์อาจารย์):
 git tag v1.0.0 && git push origin v1.0.0
 # → ได้ image ghcr.io/<owner>/group-auth-service:v1.0.0 ครบ 5 ตัว
@@ -45,7 +45,7 @@ JWT_SECRET=prod-secret docker compose up -d
 
 ## 6. Definition of Done (เช็กลิสต์ส่งอาจารย์)
 - [ ] Actions เขียวทั้ง test + build-push
-- [ ] มี 5 packages บน GHCR (`group-auth-service`, `group-product-service`, `group-order-service`, `group-notification-service`, `group-frontend`)
+- [ ] มี 6 packages บน GHCR (`group-auth-service`, `group-product-service`, `group-order-service`, `group-notification-service`, `group-cart-service`, `group-frontend`)
 - [ ] มี tag `v1.0.0` (Release version) ทุก image
 - [ ] เปิด `http://localhost:8080` login `admin/password123` ผ่าน
-- [ ] Unit Test ≥ 5 เคส (มี 10 เคส) — ดู `docs/TEST-SPEC.md`
+- [ ] Unit Test ≥ 5 เคส (มี 24 เคส) — ดู `docs/TEST-SPEC.md`

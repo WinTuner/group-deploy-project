@@ -18,7 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        service: [auth-service, product-service, order-service, notification-service]
+        service: [auth-service, product-service, order-service, notification-service, cart-service]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -51,6 +51,8 @@ jobs:
             context: ./services/order-service
           - service: notification-service
             context: ./services/notification-service
+          - service: cart-service
+            context: ./services/cart-service
           - service: frontend
             context: ./frontend
     steps:
