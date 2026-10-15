@@ -2,87 +2,83 @@
 marp: true
 theme: default
 paginate: true
+header: 'Group Deploy Project — Mini Hackathon'
 style: |
-  section { font-family: 'Sarabun', 'TH Sarabun New', sans-serif; }
+  section { font-family: 'Segoe UI', Tahoma, sans-serif; }
   h1 { color: #0f766e; }
-  table { font-size: 0.85em; }
+  h2 { color: #0f766e; border-bottom: 3px solid #14b8a6; padding-bottom: 6px; }
+  code { background: #f0fdfa; }
 ---
 
-# Group Deploy Project
-## Micro-services 5 ตัว + Automation ถึง Docker Hub
+# 🛒 Group Deploy Project
+## Micro-services + Automation → Docker Hub
 
-วิชา Cloud Deployment — นำเสนอหน้าชั้น
-
----
-
-# สมาชิก + หน้าที่ (คนละ 1 service)
-
-| คน | Role | ดูแล | พูดเรื่อง |
-|---|---|---|---|
-| 1 (นัท) | PM | `cart-service` + pipeline + docs | แผน deploy, stages, versioning |
-| 2 | Developer | `product-service` | CRUD + test + Dockerfile |
-| 3 | Developer | `order-service` | CRUD + แก้ build fail + เรียกข้าม service |
-| 4 | Tester | `notification-service` + QA + `e2e/` | Test Spec, Automation, ผล build |
-| 5 | Dev/Front-end | `auth-service` + frontend | JWT + หน้า Login + nginx image |
+**ทีม 5 คน | 5 services | 1 gateway | 28 unit + 16 e2e | release `1.5.0`**
 
 ---
 
-# สถาปัตยกรรม: ทางเดียวผ่าน nginx `:80`
+## 🎯 โจทย์
+
+- แยก micro-service รายสมาชิก
+- มีหน้า Login
+- Deploy ผ่าน Automation → Container Registry
+- Unit Test ≥ จำนวนสมาชิก (5)
+
+**ของเรา:** 5 services + nginx ทางเดียว + Docker Hub + เทส 44 เคส
+
+---
+
+## 🏗 สถาปัตยกรรม
 
 ```
-[browser :80] → [nginx] → / → frontend (Next.js + BFF)
-                      ├── /api/auth/* → auth :3001 (JWT)
-                      ├── /api/products/* → product :3002
-                      ├── /api/orders/* → order :3003
-                      ├── /api/notifications/* → noti :3004
-                      └── /api/cart/* → cart :3005
+[browser :80] → [nginx] ─┬─ / → frontend (Next.js + BFF)
+                         ├─ /api/auth/* → auth :3001 (JWT)
+                         ├─ /api/products/* → product :3002
+                         ├─ /api/orders/* → order :3003
+                         ├─ /api/notifications/* → noti :3004
+                         └─ /api/cart/* → cart :3005
 ```
 
-- 5 microservices แยก image กัน + 1 frontend + 1 gateway
-- browser เห็นแค่ port เดียว
+ยิงกันเองแบบ **fail-open**: order→product, order→noti, cart→product, auth→noti
+ล่ม 1 ตัว ที่เหลือทำงานต่อ ✅ (เทสจริง: ปิด noti แล้วสมัคร/สั่ง/ตะกร้ายัง 201)
 
 ---
 
-# Service คุยกัน (ล่ม 1 ตัวไม่พัง)
+## 🔁 Pipeline (2 jobs + e2e)
 
-- `order → product` : ของต้องมีจริงก่อนรับออเดอร์
-- `order → noti` : ออเดอร์ใหม่แจ้งเตือนอัตโนมัติ
-- `cart → product` : ของต้องมีจริงก่อนลงตะกร้า
-- `auth → noti` : สมัครแล้วส่ง welcome
-- ทุกเส้น **fail-open + timeout 3 วิ** — พิสูจน์แล้ว: ปิด noti ทิ้ง สมัคร/สั่ง/ตะกร้ายัง `201`
+1. **test** — matrix 5 services (`npm test`)
+2. **build-push** — push 6 images ขึ้น Docker Hub (`latest` + `sha` + `X.Y.Z`)
+3. **e2e** — Playwright 16 เคสผ่าน nginx gateway
 
----
-
-# Pipeline: test → build-push → e2e
-
-1. **test** — matrix 5 services (`npm install && npm test`)
-2. **build-push** — เฉพาะ push main/tag → login Docker Hub → push 6 images
-3. **e2e** — `docker compose up` → Playwright 16 เคสผ่าน gateway
-
-Tags: `:latest` (main) + `:sha-xxxx` (ทุก commit) + `:1.5.0` (release)
+`git tag v1.5.0` → ได้ `:1.5.0` ครบ 6 images ทันที
 
 ---
 
-# ผลทดสอบ
+## 👥 ใครทำอะไร
 
-- **Unit Test 28/28** — auth 5, product 10, order 6, noti 2, cart 5
-- **E2E 16/16** — health 6, login, CRUD, โยงข้าม service, โฟลว์ browser
-- **Docker Hub** — `wintuner/group-*:1.5.0` ครบ 6 repos (Public)
-
----
-
-# Demo (2 นาที)
-
-1. `docker compose up --build` → เปิด `http://localhost:80`
-2. Login `admin / password123` → เข้า dashboard
-3. สั่งสินค้า → มีแจ้งเตือนเข้า `/status`
-4. โชว์ Hub: 6 repos tag `1.5.0` + Actions เขียว
+| คน | บทบาท | ดูแล |
+|---|---|---|
+| นัท | PM | cart-service + pipeline + docs |
+| 2 | Dev | product-service (CRUD + dashboard) |
+| 3 | Dev | order-service (PUT/DELETE + เช็ค product) |
+| 4 | Tester | noti-service + QA + e2e 16 เคส |
+| 5 | Dev/FE | auth-service (JWT) + Next.js frontend |
 
 ---
 
-# สรุป
+## 📊 ผลลัพธ์
 
-- ครบทุกเงื่อนไข: Login, Automation, Container Registry, รายคนมี service, Release version
-- แถม: gateway ทางเดียว, mesh แบบล้มไม่พัง, E2E อัตโนมัติ
+- ✅ Unit 28/28 | E2E 16/16 | CI เขียว
+- ✅ Docker Hub: `wintuner/group-*:1.5.0` ครบ 6
+- ✅ เปิด `:80` → login `admin/password123` → dashboard
+- ✅ `docker pull` แล้วรันที่ไหนก็ได้
 
-**จบ — ถามได้ครับ**
+---
+
+## 🔥 จุดขาย
+
+1. **ทางเดียวผ่าน nginx** — ไม่ต้องจำ 6 ports
+2. **ล่มตัวเดียวไม่พัง** — fail-open + timeout ทุกเส้น
+3. **เจ้าของชัด** — 1 คน 1 service + ใบงาน + branch รายคน
+
+**จบ — ถามได้ครับ 🙏**
