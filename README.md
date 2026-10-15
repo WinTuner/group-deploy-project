@@ -17,8 +17,9 @@ docs/TEST-SPEC.md              ← Test Spec 5 คน + Unit Tests ≥5
 ## รันโลคัล
 ```bash
 docker compose up --build
-# เปิด http://localhost:8080 → login admin / password123
-# API: :3001 (auth) :3002 (product) :3003 (order) :3004 (noti) :3005 (cart)
+# ทางเข้าหลักทางเดียว: http://localhost:80 → หน้าเว็บ + /api/* ทุก service
+# เปิด http://localhost:80 → login admin / password123
+# ตรงแต่ละ service (ไว้ dev): :3001 (auth) :3002 (product) :3003 (order) :3004 (noti) :3005 (cart), :8080 (frontend ตรง)
 ```
 
 ## เทสโลคัล (ทีละ service)

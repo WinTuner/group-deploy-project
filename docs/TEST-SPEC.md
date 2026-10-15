@@ -26,6 +26,7 @@
 ## Integration / E2E (Tester รันเสริม, ไม่บังคับนับโควต้า)
 - IT-01 (Frontend คนที่ 5): เปิด `:8080` → กรอก admin/password123 → ได้ token โชว์สีเขียว
 - IT-02: `docker compose up --build` → `curl :3001/health :3002/health :3003/health :3004/health :3005/health` ต้อง `{"status":"ok"}` ทั้ง 5
+- IT-03 (gateway): ยิงผ่าน nginx ทางเดียว → `curl :80/health` + `:80/api/<auth,products,orders,notifications,cart>/health` ต้อง `ok` ทั้ง 6
 
 ## วิธีรัน
 ```bash

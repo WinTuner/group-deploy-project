@@ -9,10 +9,14 @@
 | 4 | Tester | `notification-service` + QA pipeline | Test Case automation, ดูผล build/test บน Actions |
 | 5 | Developer/Front-end | `auth-service` + `frontend` (Login end-to-end) | API Login/JWT + หน้า Login ยิง API, nginx image |
 
-## 2. สถาปัตยกรรม
+## 2. สถาปัตยกรรม (single entry ผ่าน nginx :80)
 ```
-[frontend :8080] ──POST /login──→ [auth-service :3001] (JWT)
-[product :3002] [order :3003] [noti :3004] [cart :3005]  (REST แยกอิสระ, แยก image กัน)
+[browser :80] ──→ [nginx] ──┬── / ──→ [frontend :8080] (Next.js + BFF /api/*)
+                            ├── /api/auth/* ──→ [auth-service :3001] (JWT)
+                            ├── /api/products/* ──→ [product :3002]
+                            ├── /api/orders/* ──→ [order :3003]
+                            ├── /api/notifications/* ──→ [noti :3004]
+                            └── /api/cart/* ──→ [cart :3005]
 ```
 - แยก repo-path ต่อ service → แยก Dockerfile → แยก image `<dockerhub-user>/group-<service>`
 - เงื่อนไขครบ: Login มี (API + หน้าเว็บ), Automation ผ่าน GitHub Actions, Push ขึ้น Container Registry, แยก service ต่อคน
