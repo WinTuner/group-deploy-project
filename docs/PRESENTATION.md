@@ -28,6 +28,14 @@ style: |
 
 ---
 
+## 🔐 Login จริง (ไม่ใช่ mock)
+
+![w:850px](./images/login.png)
+
+`admin / password123` → JWT httpOnly cookie → dashboard
+
+---
+
 ## 🏗 สถาปัตยกรรม
 
 ```
@@ -72,6 +80,12 @@ style: |
 - ✅ Docker Hub: `wintuner/group-*:1.5.0` ครบ 6
 - ✅ เปิด `:80` → login `admin/password123` → dashboard
 - ✅ `docker pull` แล้วรันที่ไหนก็ได้
+
+---
+
+## 📡 Status จริงจากระบบ
+
+![w:850px](./images/status.png)
 
 ---
 
