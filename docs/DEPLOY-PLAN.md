@@ -20,7 +20,7 @@
 ## 3. Pipeline (`.github/workflows/ci-cd.yml`) — 2 jobs
 1. **test**: matrix 5 services → `npm install && npm test` ทุก PR/push (fail = หยุด ไม่ build)
 2. **build-push**: เฉพาะ `push` (PR ไม่ push) → login Docker Hub → buildx → push 6 images พร้อม tags:
-   - `latest` (branch main), `:sha-<short>` (ทุก commit), `:vX.Y.Z` (ตอนติด tag)
+   - `latest` (branch main), `:sha-<short>` (ทุก commit), `:X.Y.Z (ตัด v ออก)` (ตอนติด tag)
 
 ## 4. ขั้นตอน Deploy จริง (PM สั่ง)
 ```bash
@@ -33,7 +33,7 @@ git push -u origin main
 git tag v1.0.0 && git push origin v1.0.0
 # → ได้ image <dockerhub-user>/group-auth-service:v1.0.0 ครบ 6 ตัว
 # ดึงไปรันที่ไหนก็ได้:
-docker pull <dockerhub-user>/group-auth-service:v1.4.0
+docker pull <dockerhub-user>/group-auth-service:1.4.0
 JWT_SECRET=prod-secret docker compose up -d
 ```
 
@@ -48,6 +48,6 @@ Repo → Settings → Secrets and variables → Actions → New repository secre
 ## 6. Definition of Done (เช็กลิสต์ส่งอาจารย์)
 - [ ] Actions เขียวทั้ง test + build-push
 - [ ] มี 6 repos บน Docker Hub (`group-auth-service`, `group-product-service`, `group-order-service`, `group-notification-service`, `group-cart-service`, `group-frontend`)
-- [ ] มี tag `v1.4.0` (Release version) ทุก image บน Docker Hub
+- [ ] มี tag `1.4.0` (จาก git tag `v1.4.0`) ครบ 6 images บน Docker Hub
 - [ ] เปิด `http://localhost:8080` login `admin/password123` ผ่าน
 - [ ] Unit Test ≥ 5 เคส (มี 24 เคส) — ดู `docs/TEST-SPEC.md`

@@ -36,4 +36,4 @@ cd services/<name> && npm install && npm test
 
 ## เกณฑ์ผ่าน
 - Unit Test ผ่าน 24/24 ทั้งโลคัลและ CI
-- Build Docker 6 images สำเร็จ, push Docker Hub สำเร็จ (tag latest + sha + v1.4.0)
+- Build Docker 6 images สำเร็จ, push Docker Hub สำเร็จ (tag latest + sha + 1.4.0)

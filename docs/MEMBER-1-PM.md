@@ -44,7 +44,7 @@ JWT_SECRET=prod-secret docker compose up -d
 
 ## Done
 - [ ] Actions เขียว test + build-push
-- [ ] 6 repos บน Docker Hub + tag `v1.4.0` (ตั้ง secrets `DOCKERHUB_USERNAME` + `DOCKERHUB_TOKEN` ใน repo ก่อน ไม่งั้น login fail)
+- [ ] 6 repos บน Docker Hub + tag `1.4.0` (git tag `v1.4.0`) (ตั้ง secrets `DOCKERHUB_USERNAME` + `DOCKERHUB_TOKEN` ใน repo ก่อน ไม่งั้น login fail)
 - [ ] `:8080` login `admin/password123` ผ่าน
 
 ## พูดหน้าชั้น
