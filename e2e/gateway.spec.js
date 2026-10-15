@@ -45,6 +45,8 @@ test('order-service เช็ค product-service: สินค้าไม่ม
   expect(r.status()).toBe(400);
   expect((await r.json()).error).toBe('product not found');
 });
+
+test('CRUD สินค้าผ่าน gateway', async ({ request }) => {
   const created = await request.post('/api/products/products', {
     data: { name: 'E2E-Monitor', price: 4990 },
   });
