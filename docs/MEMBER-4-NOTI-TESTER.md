@@ -1,6 +1,6 @@
-# คนที่ 4 — Tester: notification-service + QA (port 3004)
+# คนที่ 4 — Tester: notification-service + QA + E2E (port 3004)
 
-โฟลเดอร์: `services/notification-service/` + เจ้าของ `docs/TEST-SPEC.md`
+โฟลเดอร์: `services/notification-service/` + `e2e/` + เจ้าของ `docs/TEST-SPEC.md`
 
 ## ต้องมี
 - `src/index.js` — Express + `cors` + `express.json()`, store in-memory (`notifications`, `seq`)
@@ -24,16 +24,19 @@
 2. Integration: `docker compose up --build` → `curl :3001/health :3002/health :3003/health :3004/health :3005/health` ต้อง `ok` ทั้ง 5
 3. ดูผลบนแท็บ Actions: job `test` เขียว 5/5, fail → แจ้งเจ้าของ service
 
+## งาน E2E เพิ่ม (เจ้าของ `e2e/`)
+- Playwright 13 เคส (`gateway.spec.js` 9 + `shop.spec.js` 4) ยิงผ่าน nginx `:80` ทางเดียว
+- รันบน CI ทุก push (job `e2e`) + รันโลคัลได้ตาม `e2e/README.md`
+
 ```bash
-cd services/notification-service && npm install && npm test
-docker compose up --build
-curl localhost:3004/health
+docker compose up --build -d
+cd e2e && npm install && npx playwright install chromium && npm test
 ```
 
 ## Done
 - [ ] `npm test` service ตัวเอง 2/2 + รวม 24/24
-- [ ] IT-02 health ครบ 5 ตัว
-- [ ] Actions job test เขียว
+- [ ] IT-02 health ครบ 5 ตัว + E2E 13/13
+- [ ] Actions job test + e2e เขียว
 
 ## พูดหน้าชั้น
 Test Spec 24 เคส → วิธีรันโลคัล + บน CI → เคส fail แปลว่าอะไร ใครแก้

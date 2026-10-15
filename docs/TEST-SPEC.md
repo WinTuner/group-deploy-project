@@ -28,11 +28,19 @@
 - IT-02: `docker compose up --build` → `curl :3001/health :3002/health :3003/health :3004/health :3005/health` ต้อง `{"status":"ok"}` ทั้ง 5
 - IT-03 (gateway): ยิงผ่าน nginx ทางเดียว → `curl :80/health` + `:80/api/<auth,products,orders,notifications,cart>/health` ต้อง `ok` ทั้ง 6
 
+## E2E อัตโนมัติ (`e2e/` — Playwright, เจ้าของ: Tester คนที่ 4, ยิงผ่าน gateway :80)
+| ID | Spec | Case |
+|---|---|---|
+| E2E-01 | `gateway.spec.js` (9 เคส) | /health + health 5 services + login ได้ JWT + login ผิด 401 + CRUD สินค้า |
+| E2E-02 | `shop.spec.js` (4 เคส) | เปิดหน้าแรก + login เข้า dashboard + login ผิดโชว์ error + หน้า products โชว์สินค้า |
+
 ## วิธีรัน
 ```bash
 # ทีละ service
 cd services/<name> && npm install && npm test
-# ดูบน CI: แท็บ Actions → job test (matrix 5) ต้องเขียว 5/5
+# E2E ทั้งระบบ (ต้อง compose up ก่อน)
+docker compose up --build -d && cd e2e && npm install && npx playwright install chromium && npm test
+# ดูบน CI: แท็บ Actions → job test (matrix 5) + job e2e ต้องเขียว
 ```
 
 ## เกณฑ์ผ่าน

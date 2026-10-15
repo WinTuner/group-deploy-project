@@ -78,3 +78,28 @@ jobs:
           push: ${{ github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v') }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+
+  e2e:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: e2e/package-lock.json
+      - name: Install e2e deps
+        run: npm install
+        working-directory: e2e
+      - name: Install Playwright chromium
+        run: npx playwright install --with-deps chromium
+        working-directory: e2e
+      - name: Start full stack
+        run: docker compose up --build -d
+      - name: Run Playwright E2E via gateway
+        run: npm test
+        working-directory: e2e
+      - name: Stop stack
+        if: always()
+        run: docker compose down
