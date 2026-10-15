@@ -7,6 +7,10 @@ RUN npm ci
 # ---------- 2) build ----------
 FROM node:20-alpine AS builder
 WORKDIR /app
+# Next.js ฝัง process.env.* ลง bundle ตอน build -> ต้องมีค่าตั้งแต่ตอนนี้ (ไม่ใช่แค่ stage run)
+ENV AUTH_API=http://auth-service:3001 \
+    PRODUCT_API=http://product-service:3002 \
+    ORDER_API=http://order-service:3003
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 RUN npm run build
