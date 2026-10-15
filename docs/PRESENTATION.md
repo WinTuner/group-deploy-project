@@ -66,11 +66,11 @@ style: |
 
 | คน | บทบาท | ดูแล |
 |---|---|---|
-| นัท | PM | cart-service + pipeline + docs |
-| 2 | Dev | product-service (CRUD + dashboard) |
-| 3 | Dev | order-service (PUT/DELETE + เช็ค product) |
-| 4 | Tester | noti-service + QA + e2e 16 เคส |
-| 5 | Dev/FE | auth-service (JWT) + Next.js frontend |
+| WinTuner | PM | cart-service + pipeline + docs |
+| bkmintra | Dev | product-service (CRUD + dashboard) |
+| Ppggez | Dev | order-service (PUT/DELETE + เช็ค product) |
+| thekorachan | Tester | noti-service + QA + e2e 16 เคส |
+| natakron-oss | Dev/FE | auth-service (JWT) + Next.js frontend |
 
 ---
 
