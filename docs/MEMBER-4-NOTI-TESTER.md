@@ -20,12 +20,12 @@
 - UT-NOTI-02: `POST /notifications {to}` (ขาด message) → 400
 
 ## งาน QA เพิ่ม (เจ้าของ)
-1. รัน 5 services: `npm test` ผ่าน 25/25 (auth 4, product 10, order 5, noti 2, cart 4)
+1. รัน 5 services: `npm test` ผ่าน 28/28 (auth 5, product 10, order 6, noti 2, cart 5)
 2. Integration: `docker compose up --build` → `curl :3001/health :3002/health :3003/health :3004/health :3005/health` ต้อง `ok` ทั้ง 5
 3. ดูผลบนแท็บ Actions: job `test` เขียว 5/5, fail → แจ้งเจ้าของ service
 
 ## งาน E2E เพิ่ม (เจ้าของ `e2e/`)
-- Playwright 14 เคส (`gateway.spec.js` 10 + `shop.spec.js` 4) ยิงผ่าน nginx `:80` ทางเดียว
+- Playwright 16 เคส (`gateway.spec.js` 12 + `shop.spec.js` 4) ยิงผ่าน nginx `:80` ทางเดียว
 - รันบน CI ทุก push (job `e2e`) + รันโลคัลได้ตาม `e2e/README.md`
 
 ```bash
@@ -34,9 +34,9 @@ cd e2e && npm install && npx playwright install chromium && npm test
 ```
 
 ## Done
-- [ ] `npm test` service ตัวเอง 2/2 + รวม 25/25
-- [ ] IT-02 health ครบ 5 ตัว + E2E 14/14
+- [ ] `npm test` service ตัวเอง 2/2 + รวม 28/28
+- [ ] IT-02 health ครบ 5 ตัว + E2E 16/16
 - [ ] Actions job test + e2e เขียว
 
 ## พูดหน้าชั้น
-Test Spec 25 เคส → วิธีรันโลคัล + บน CI → เคส fail แปลว่าอะไร ใครแก้
+Test Spec 28+16 เคส → วิธีรันโลคัล + บน CI → เคส fail แปลว่าอะไร ใครแก้

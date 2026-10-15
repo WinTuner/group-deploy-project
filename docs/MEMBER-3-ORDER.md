@@ -24,6 +24,7 @@
 
 ## Inter-service (ของเราตัวแรกที่คุยกัน)
 - `POST /orders` ยิง `GET <PRODUCT_SERVICE_URL>/products/:id` (timeout 3 วิ)
+- สร้างออเดอร์แล้วแจ้ง `noti-service` แบบ fire-and-forget (ล่มก็ไม่พังออเดอร์)
 - compose ตั้ง `PRODUCT_SERVICE_URL=http://product-service:3002` ให้แล้ว
 - product ล่ม → fail-open (รับออเดอร์ต่อ) ยกเว้นตั้ง `STRICT_PRODUCT_CHECK=1`
 

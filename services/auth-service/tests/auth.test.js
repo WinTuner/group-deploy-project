@@ -2,6 +2,9 @@ const request = require('supertest');
 const app = require('../src/index');
 
 describe('auth-service', () => {
+  // noti-service ล่มก็ต้องสมัครได้ (fire-and-forget)
+  beforeEach(() => jest.spyOn(global, 'fetch').mockRejectedValue(new Error('unreachable')));
+  afterEach(() => jest.restoreAllMocks());
   test('UT-AUTH-01: register สร้าง user ใหม่ได้ (201)', async () => {
     const res = await request(app).post('/register').send({ username: 'u' + Date.now(), password: 'pw1234' });
     expect(res.status).toBe(201);
@@ -22,5 +25,9 @@ describe('auth-service', () => {
     const login = await request(app).post('/login').send({ username: 'admin', password: 'password123' });
     const me = await request(app).get('/me').set('Authorization', 'Bearer ' + login.body.token);
     expect(me.status).toBe(200);
+  });
+  test('UT-AUTH-05: noti-service ล่มก็ register ได้ (201)', async () => {
+    const res = await request(app).post('/register').send({ username: 'u' + Date.now(), password: 'pw1234' });
+    expect(res.status).toBe(201);
   });
 });

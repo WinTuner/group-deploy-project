@@ -6,7 +6,7 @@
 - `src/index.js` — Express, `bcryptjs`, `jsonwebtoken`, `cors`; user store in-memory; seed `admin/password123`
 - `package.json` — deps: `express`, `cors`, `bcryptjs`, `jsonwebtoken`
 - `Dockerfile` — `node:20-alpine` + `CMD ["node","src/index.js"]`
-- `tests/auth.test.js` — UT-AUTH-01..04
+- `tests/auth.test.js` — UT-AUTH-01..05
 
 ### Endpoints (ห้ามเปลี่ยน contract)
 | Method | Path | Input | Output |
@@ -23,6 +23,7 @@ Token: `jwt.sign({sub, username}, JWT_SECRET, {expiresIn:'1h'})` — `JWT_SECRET
 - UT-AUTH-02: login `admin/password123` → 200 + token
 - UT-AUTH-03: login รหัสผิด → 401
 - UT-AUTH-04: `/me` ไม่มี token → 401, มี token → 200
+- UT-AUTH-05: noti ล่มก็ register ได้ → 201 (fire-and-forget welcome)
 
 ## ต้องมี — frontend
 - `index.html` — ฟอร์ม login ยิง `POST <AUTH_API>/login`, โชว์ token สีเขียว / error สีแดง; `AUTH_API` default `http://localhost:3001`

@@ -54,3 +54,19 @@ test('CRUD สินค้าผ่าน gateway', async ({ request }) => {
   const list = await request.get('/api/products/products');
   expect(await list.json()).toEqual(expect.arrayContaining([expect.objectContaining({ name: 'E2E-Monitor' })]));
 });
+
+test('สมัครสมาชิกแล้วมี welcome notification (auth -> noti)', async ({ request }) => {
+  const u = 'e2e-u' + Date.now();
+  const reg = await request.post('/api/auth/register', { data: { username: u, password: 'pw1234' } });
+  expect(reg.status()).toBe(201);
+  const list = await request.get('/api/notifications/notifications');
+  expect(await list.json()).toEqual(expect.arrayContaining([expect.objectContaining({ to: u })]));
+});
+
+test('สร้างออเดอร์แล้วมีแจ้งเตือน (order -> noti)', async ({ request }) => {
+  const o = await request.post('/api/orders/orders', { data: { productId: 1, qty: 1 } });
+  expect(o.status()).toBe(201);
+  const id = (await o.json()).id;
+  const list = await request.get('/api/notifications/notifications');
+  expect(JSON.stringify(await list.json())).toContain(`new order #${id}`);
+});

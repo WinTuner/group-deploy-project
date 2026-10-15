@@ -34,4 +34,9 @@ describe('order-service', () => {
     expect(res.status).toBe(400);
     expect(res.body.error).toBe('product not found');
   });
+  test('UT-ORDER-06: noti-service ล่มก็สร้างออเดอร์ได้ (201)', async () => {
+    global.fetch.mockResolvedValueOnce({ status: 200 }).mockRejectedValue(new Error('noti down'));
+    const res = await request(app).post('/orders').send({ productId: 1, qty: 1 });
+    expect(res.status).toBe(201);
+  });
 });

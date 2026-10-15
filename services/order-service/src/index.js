@@ -8,6 +8,7 @@ let orders = [];
 let seq = 1;
 
 const PRODUCT_SERVICE_URL = process.env.PRODUCT_SERVICE_URL || 'http://localhost:3002';
+const NOTIFICATION_SERVICE_URL = process.env.NOTIFICATION_SERVICE_URL || 'http://localhost:3004';
 
 app.get('/orders', (req, res) => res.json(orders));
 app.post('/orders', async (req, res) => {
@@ -24,6 +25,13 @@ app.post('/orders', async (req, res) => {
   }
   const o = { id: seq++, productId: Number(productId), qty: Number(qty), status: 'created', createdAt: new Date().toISOString() };
   orders.push(o);
+  // inter-service: แจ้ง noti-service แบบ fire-and-forget (ล่มก็ไม่พังออเดอร์)
+  fetch(`${NOTIFICATION_SERVICE_URL}/notifications`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ to: 'admin', message: `new order #${o.id}: product ${o.productId} x${o.qty}` }),
+    signal: AbortSignal.timeout(3000),
+  }).catch(() => {});
   res.status(201).json(o);
 });
 app.get('/orders/:id', (req, res) => {

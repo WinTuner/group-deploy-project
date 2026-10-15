@@ -7,14 +7,21 @@ app.use(express.json());
 let items = [];
 let seq = 1;
 
+const PRODUCT_SERVICE_URL = process.env.PRODUCT_SERVICE_URL || 'http://localhost:3002';
+
 app.get('/cart', (req, res) => {
   const { userId } = req.query;
   res.json(userId ? items.filter(i => String(i.userId) === String(userId)) : items);
 });
-app.post('/cart', (req, res) => {
+app.post('/cart', async (req, res) => {
   const { userId, productId, qty } = req.body || {};
   if (userId == null || !productId || qty == null) return res.status(400).json({ error: 'userId, productId & qty required' });
   if (Number(qty) <= 0 || Number(qty) > 99) return res.status(400).json({ error: 'qty must be 1..99' });
+  // inter-service: ของต้องมีจริงใน product-service (fail-open ตอนล่ม)
+  try {
+    const r = await fetch(`${PRODUCT_SERVICE_URL}/products/${Number(productId)}`, { signal: AbortSignal.timeout(3000) });
+    if (r.status === 404) return res.status(400).json({ error: 'product not found' });
+  } catch { /* product-service ล่ม -> รับของเข้าตะกร้าต่อ */ }
   const item = { id: seq++, userId, productId: Number(productId), qty: Number(qty), addedAt: new Date().toISOString() };
   items.push(item);
   res.status(201).json(item);

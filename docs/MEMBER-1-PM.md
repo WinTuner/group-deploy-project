@@ -21,7 +21,7 @@
 | GET | `/health` | — | `{"status":"ok"}` |
 
 ### Tests (ต้องเขียว)
-- UT-CART-01..04 (ดู `docs/TEST-SPEC.md`)
+- UT-CART-01..05 (ดู `docs/TEST-SPEC.md`)
 
 ```bash
 cd services/cart-service && npm install && npm test

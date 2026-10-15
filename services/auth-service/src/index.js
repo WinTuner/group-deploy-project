@@ -8,6 +8,7 @@ app.use(cors());
 app.use(express.json());
 
 const JWT_SECRET = process.env.JWT_SECRET || 'dev-secret-change-me';
+const NOTIFICATION_SERVICE_URL = process.env.NOTIFICATION_SERVICE_URL || 'http://localhost:3004';
 // in-memory user store (demo; สลับเป็น DB จริงได้โดยไม่เปลี่ยน API)
 const users = [];
 
@@ -35,6 +36,13 @@ app.post('/register', async (req, res) => {
   const hash = await bcrypt.hash(password, 10);
   const user = { id: users.length + 1, username, password: hash };
   users.push(user);
+  // inter-service: ส่ง welcome ผ่าน noti-service แบบ fire-and-forget (ล่มก็สมัครได้)
+  fetch(`${NOTIFICATION_SERVICE_URL}/notifications`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ to: username, message: `welcome ${username}!` }),
+    signal: AbortSignal.timeout(3000),
+  }).catch(() => {});
   res.status(201).json({ id: user.id, username: user.username });
 });
 

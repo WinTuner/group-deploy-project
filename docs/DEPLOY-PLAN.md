@@ -19,6 +19,7 @@
                             └── /api/cart/* ──→ [cart :3005]
 ```
 - แยก repo-path ต่อ service → แยก Dockerfile → แยก image `<dockerhub-user>/group-<service>`
+- inter-service (fail-open ล่มตัวเดียวไม่พัง): order→product (เช็คของ), order→noti (แจ้งออเดอร์), cart→product (เช็คของ), auth→noti (welcome)
 - เงื่อนไขครบ: Login มี (API + หน้าเว็บ), Automation ผ่าน GitHub Actions, Push ขึ้น Container Registry, แยก service ต่อคน
 
 ## 3. Pipeline (`.github/workflows/ci-cd.yml`) — 2 jobs
@@ -54,4 +55,4 @@ Repo → Settings → Secrets and variables → Actions → New repository secre
 - [ ] มี 6 repos บน Docker Hub (`group-auth-service`, `group-product-service`, `group-order-service`, `group-notification-service`, `group-cart-service`, `group-frontend`)
 - [ ] มี tag `1.4.0` (จาก git tag `v1.4.0`) ครบ 6 images บน Docker Hub
 - [ ] เปิด `http://localhost:8080` login `admin/password123` ผ่าน
-- [ ] Unit Test ≥ 5 เคส (มี 25 เคส) — ดู `docs/TEST-SPEC.md`
+- [ ] Unit Test ≥ 5 เคส (มี 28 เคส) + E2E 16 เคส — ดู `docs/TEST-SPEC.md`
