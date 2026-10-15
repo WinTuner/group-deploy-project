@@ -21,6 +21,21 @@ app.get('/orders/:id', (req, res) => {
   if (!o) return res.status(404).json({ error: 'not found' });
   res.json(o);
 });
+app.put('/orders/:id', (req, res) => {
+  const o = orders.find(x => x.id === Number(req.params.id));
+  if (!o) return res.status(404).json({ error: 'not found' });
+  const { qty, status } = req.body || {};
+  if (qty != null && Number(qty) <= 0) return res.status(400).json({ error: 'qty must be > 0' });
+  if (qty != null) o.qty = Number(qty);
+  if (status) o.status = status;
+  res.json(o);
+});
+app.delete('/orders/:id', (req, res) => {
+  const i = orders.findIndex(x => x.id === Number(req.params.id));
+  if (i === -1) return res.status(404).json({ error: 'not found' });
+  orders.splice(i, 1);
+  res.status(204).end();
+});
 app.get('/health', (req, res) => res.json({ status: 'ok', service: 'order-service' }));
 
 const PORT = process.env.PORT || 3003;
