@@ -1,4 +1,4 @@
-name: CI/CD to GHCR
+name: CI/CD to Docker Hub
 
 on:
   push:
@@ -11,7 +11,7 @@ on:
       - main
 
 env:
-  REGISTRY: ghcr.io
+  REGISTRY: docker.io
 
 jobs:
   test:
@@ -39,7 +39,6 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      packages: write
     strategy:
       matrix:
         include:
@@ -57,18 +56,17 @@ jobs:
             context: ./frontend
     steps:
       - uses: actions/checkout@v4
-      - name: Login to GHCR
+      - name: Login to Docker Hub
         if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v')
         uses: docker/login-action@v3
         with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Docker meta
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ghcr.io/${{ github.repository_owner }}/group-${{ matrix.service }}
+          images: ${{ secrets.DOCKERHUB_USERNAME }}/group-${{ matrix.service }}
           tags: |
             type=raw,value=latest,enable={{is_default_branch}}
             type=sha,format=short

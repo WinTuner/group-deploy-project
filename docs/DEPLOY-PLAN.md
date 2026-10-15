@@ -14,14 +14,13 @@
 [frontend :8080] ──POST /login──→ [auth-service :3001] (JWT)
 [product :3002] [order :3003] [noti :3004] [cart :3005]  (REST แยกอิสระ, แยก image กัน)
 ```
-- แยก repo-path ต่อ service → แยก Dockerfile → แยก image `ghcr.io/<owner>/group-<service>`
+- แยก repo-path ต่อ service → แยก Dockerfile → แยก image `<dockerhub-user>/group-<service>`
 - เงื่อนไขครบ: Login มี (API + หน้าเว็บ), Automation ผ่าน GitHub Actions, Push ขึ้น Container Registry, แยก service ต่อคน
 
 ## 3. Pipeline (`.github/workflows/ci-cd.yml`) — 2 jobs
 1. **test**: matrix 5 services → `npm install && npm test` ทุก PR/push (fail = หยุด ไม่ build)
-2. **build-push**: เฉพาะ `push` (PR ไม่ push) → login GHCR → buildx → push 6 images พร้อม tags:
+2. **build-push**: เฉพาะ `push` (PR ไม่ push) → login Docker Hub → buildx → push 6 images พร้อม tags:
    - `latest` (branch main), `:sha-<short>` (ทุก commit), `:vX.Y.Z` (ตอนติด tag)
-- Permissions: `packages: write` (บังคับ ไม่งั้น push GHCR 403)
 
 ## 4. ขั้นตอน Deploy จริง (PM สั่ง)
 ```bash
@@ -29,23 +28,26 @@
 git init && git add . && git commit -m "feat: 5 microservices + pipeline" 
 git branch -M main && git remote add origin https://github.com/<owner>/<repo>.git
 git push -u origin main
-# ดูผล: แท็บ Actions → job test/build-push เขียว → แท็บ Packages มี 6 images
+# ดูผล: แท็บ Actions → job test/build-push เขียว → hub.docker.com มี 6 repos
 # Release version (บังคับโชว์อาจารย์):
 git tag v1.0.0 && git push origin v1.0.0
-# → ได้ image ghcr.io/<owner>/group-auth-service:v1.0.0 ครบ 5 ตัว
+# → ได้ image <dockerhub-user>/group-auth-service:v1.0.0 ครบ 6 ตัว
 # ดึงไปรันที่ไหนก็ได้:
-docker pull ghcr.io/<owner>/group-auth-service:v1.0.0
+docker pull <dockerhub-user>/group-auth-service:v1.4.0
 JWT_SECRET=prod-secret docker compose up -d
 ```
 
-## 5. Secrets / Settings ที่ต้องตั้ง
-- ไม่ต้องตั้งอะไรเพิ่ม (ใช้ `GITHUB_TOKEN` ที่ Actions มีให้)
-- ถ้า repo เป็น **private**: Packages → ตั้ง visibility เป็น public หรือ `docker login` ก่อน pull
+## 5. Secrets / Settings ที่ต้องตั้ง (รอบเดียว)
+Repo → Settings → Secrets and variables → Actions → New repository secret:
+- `DOCKERHUB_USERNAME` = ชื่อ user Docker Hub (เช่น `wintuner`)
+- `DOCKERHUB_TOKEN` = Access Token (สร้างที่ hub.docker.com → Account Settings → Personal access tokens → Read & Write)
+- ถ้าไม่มี 2 ตัวนี้ job build-push จะ fail ตั้งแต่ขั้น login (test ยังรันปกติ)
+- ถ้า image เป็น **private**: `docker login` ก่อน pull
 - `JWT_SECRET`: ตั้งใน compose env / server env ตอน deploy จริง (ห้าม commit ค่าจริง)
 
 ## 6. Definition of Done (เช็กลิสต์ส่งอาจารย์)
 - [ ] Actions เขียวทั้ง test + build-push
-- [ ] มี 6 packages บน GHCR (`group-auth-service`, `group-product-service`, `group-order-service`, `group-notification-service`, `group-cart-service`, `group-frontend`)
-- [ ] มี tag `v1.0.0` (Release version) ทุก image
+- [ ] มี 6 repos บน Docker Hub (`group-auth-service`, `group-product-service`, `group-order-service`, `group-notification-service`, `group-cart-service`, `group-frontend`)
+- [ ] มี tag `v1.4.0` (Release version) ทุก image บน Docker Hub
 - [ ] เปิด `http://localhost:8080` login `admin/password123` ผ่าน
 - [ ] Unit Test ≥ 5 เคส (มี 24 เคส) — ดู `docs/TEST-SPEC.md`
