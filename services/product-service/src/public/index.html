@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Product Service (Port 3002)</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #ffffff;
+      color: #333333;
+      margin: 0;
+      padding: 30px;
+    }
+
+    .container {
+      max-width: 700px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      color: #111827;
+      margin-bottom: 5px;
+    }
+
+    .subtitle {
+      color: #6b7280;
+      margin-bottom: 25px;
+      font-size: 14px;
+    }
+
+    .badge {
+      display: inline-block;
+      background-color: #e5e7eb;
+      color: #374151;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: bold;
+    }
+
+    .status-ok {
+      background-color: #d1fae5;
+      color: #065f46;
+    }
+
+    /* Form Section */
+    .card {
+      background-color: #f9fafb;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 25px;
+    }
+
+    .card h2 {
+      margin-top: 0;
+      font-size: 18px;
+      margin-bottom: 15px;
+    }
+
+    .form-group {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    input[type="text"], input[type="number"] {
+      padding: 8px 12px;
+      border: 1px solid #d1d5db;
+      border-radius: 4px;
+      font-size: 14px;
+      flex: 1;
+    }
+
+    button {
+      cursor: pointer;
+      padding: 8px 16px;
+      border-radius: 4px;
+      font-size: 14px;
+      border: none;
+    }
+
+    .btn-add {
+      background-color: #2563eb;
+      color: white;
+      font-weight: bold;
+    }
+
+    .btn-add:hover {
+      background-color: #1d4ed8;
+    }
+
+    .btn-edit {
+      background-color: #e0e7ff;
+      color: #3730a3;
+      padding: 4px 8px;
+      font-size: 12px;
+      margin-right: 5px;
+    }
+
+    .btn-delete {
+      background-color: #fee2e2;
+      color: #991b1b;
+      padding: 4px 8px;
+      font-size: 12px;
+    }
+
+    /* Table Section */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      background-color: #ffffff;
+    }
+
+    th, td {
+      border: 1px solid #e5e7eb;
+      padding: 10px 12px;
+      text-align: left;
+    }
+
+    th {
+      background-color: #f3f4f6;
+      font-size: 14px;
+      color: #374151;
+    }
+
+    td {
+      font-size: 14px;
+    }
+
+    .actions {
+      text-align: center;
+      width: 130px;
+    }
+
+    .api-links {
+      margin-top: 30px;
+      padding-top: 15px;
+      border-top: 1px solid #e5e7eb;
+      font-size: 13px;
+      color: #6b7280;
+    }
+
+    .api-links a {
+      color: #2563eb;
+      text-decoration: none;
+      margin-right: 15px;
+    }
+
+    .api-links a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>📦 Product Service</h1>
+    <div class="subtitle">
+      Member 2 (Developer) | สถานะ: <span class="badge status-ok" id="status">Online (Port 3002)</span>
+    </div>
+
+    <!-- ฟอร์มเพิ่มสินค้า -->
+    <div class="card">
+      <h2>+ เพิ่มสินค้าใหม่</h2>
+      <form id="product-form" onsubmit="addProduct(event)">
+        <div class="form-group">
+          <input type="text" id="name" placeholder="ชื่อสินค้า (เช่น Keyboard)" required />
+          <input type="number" id="price" placeholder="ราคา (฿)" min="0" required />
+          <button type="submit" class="btn-add">เพิ่มสินค้า</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- รายการสินค้า -->
+    <h2>รายการสินค้าทั้งหมด</h2>
+    <table>
+      <thead>
+        <tr>
+          <th style="width: 60px;">ID</th>
+          <th>ชื่อสินค้า</th>
+          <th style="width: 120px;">ราคา (บาท)</th>
+          <th class="actions">จัดการ</th>
+        </tr>
+      </thead>
+      <tbody id="product-table-body">
+        <!-- ข้อมูลสินค้าจะมาแสดงที่นี่ -->
+      </tbody>
+    </table>
+
+    <!-- ลิงก์ API สำหรับเช็กข้อมูลดิบ -->
+    <div class="api-links">
+      <strong>ลิงก์ทดสอบ API:</strong>
+      <a href="/products" target="_blank">GET /products</a>
+      <a href="/health" target="_blank">GET /health</a>
+      <a href="http://localhost:8080" target="_blank">หน้าเว็บรวม (:8080)</a>
+    </div>
+  </div>
+
+  <script>
+    // 1. ดึงรายการสินค้าทั้งหมดเมื่อเปิดหน้าเว็บ
+    async function fetchProducts() {
+      try {
+        const response = await fetch('/products');
+        const products = await response.json();
+        const tbody = document.getElementById('product-table-body');
+        
+        if (products.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:#888;">ไม่มีสินค้าในระบบ</td></tr>';
+          return;
+        }
+
+        tbody.innerHTML = products.map(p => `
+          <tr>
+            <td>#${p.id}</td>
+            <td><strong>${p.name}</strong></td>
+            <td>${Number(p.price).toLocaleString()} ฿</td>
+            <td class="actions">
+              <button class="btn-edit" onclick="editProduct(${p.id}, '${p.name}', ${p.price})">แก้ไข</button>
+              <button class="btn-delete" onclick="deleteProduct(${p.id})">ลบ</button>
+            </td>
+          </tr>
+        `).join('');
+      } catch (err) {
+        alert('เกิดข้อผิดพลาดในการดึงข้อมูลสินค้า');
+      }
+    }
+
+    // 2. เพิ่มสินค้าใหม่ (POST /products)
+    async function addProduct(e) {
+      e.preventDefault();
+      const name = document.getElementById('name').value.trim();
+      const price = Number(document.getElementById('price').value);
+
+      const response = await fetch('/products', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, price })
+      });
+
+      if (response.ok) {
+        document.getElementById('name').value = '';
+        document.getElementById('price').value = '';
+        fetchProducts(); // โหลดตารางใหม่
+      } else {
+        alert('ไม่สามารถเพิ่มสินค้าได้');
+      }
+    }
+
+    // 3. แก้ไขสินค้า (PUT /products/:id)
+    async function editProduct(id, oldName, oldPrice) {
+      const name = prompt('แก้ไขชื่อสินค้า:', oldName);
+      if (name === null) return;
+      const priceStr = prompt('แก้ไขราคา:', oldPrice);
+      if (priceStr === null) return;
+
+      const response = await fetch(`/products/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, price: Number(priceStr) })
+      });
+
+      if (response.ok) {
+        fetchProducts();
+      } else {
+        alert('แก้ไขไม่สำเร็จ');
+      }
+    }
+
+    // 4. ลบสินค้า (DELETE /products/:id)
+    async function deleteProduct(id) {
+      if (!confirm('ยืนยันที่จะลบสินค้านี้?')) return;
+
+      const response = await fetch(`/products/${id}`, {
+        method: 'DELETE'
+      });
+
+      if (response.ok) {
+        fetchProducts();
+      } else {
+        alert('ลบไม่สำเร็จ');
+      }
+    }
+
+    // สั่งโหลดข้อมูลทันที
+    fetchProducts();
+  </script>
+</body>
+</html>
