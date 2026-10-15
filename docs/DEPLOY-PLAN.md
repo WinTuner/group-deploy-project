@@ -54,4 +54,4 @@ Repo → Settings → Secrets and variables → Actions → New repository secre
 - [ ] มี 6 repos บน Docker Hub (`group-auth-service`, `group-product-service`, `group-order-service`, `group-notification-service`, `group-cart-service`, `group-frontend`)
 - [ ] มี tag `1.4.0` (จาก git tag `v1.4.0`) ครบ 6 images บน Docker Hub
 - [ ] เปิด `http://localhost:8080` login `admin/password123` ผ่าน
-- [ ] Unit Test ≥ 5 เคส (มี 24 เคส) — ดู `docs/TEST-SPEC.md`
+- [ ] Unit Test ≥ 5 เคส (มี 25 เคส) — ดู `docs/TEST-SPEC.md`

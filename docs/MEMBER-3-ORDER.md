@@ -6,7 +6,7 @@
 - `src/index.js` — Express + `cors` + `express.json()`, store in-memory (`orders`, `seq`)
 - `package.json` — `start: node src/index.js`, `test: jest --coverage`
 - `Dockerfile` — แบบเดียวกับ product-service
-- `tests/order.test.js` — UT-ORDER-01/02
+- `tests/order.test.js` — UT-ORDER-01..05
 
 ## Endpoints (ห้ามเปลี่ยน contract)
 | Method | Path | Input | Output |
@@ -19,6 +19,13 @@
 ## Tests (ต้องเขียว)
 - UT-ORDER-01: `POST /orders {1,2}` → 201 + `status=created`
 - UT-ORDER-02: `POST /orders {1,0}` → 400
+- UT-ORDER-03/04: PUT/DELETE (ดู TEST-SPEC)
+- UT-ORDER-05: สินค้าไม่มีจริง → 400 `product not found` (เช็ค `product-service` ก่อนสร้าง)
+
+## Inter-service (ของเราตัวแรกที่คุยกัน)
+- `POST /orders` ยิง `GET <PRODUCT_SERVICE_URL>/products/:id` (timeout 3 วิ)
+- compose ตั้ง `PRODUCT_SERVICE_URL=http://product-service:3002` ให้แล้ว
+- product ล่ม → fail-open (รับออเดอร์ต่อ) ยกเว้นตั้ง `STRICT_PRODUCT_CHECK=1`
 
 ## รัน/เทส
 ```bash

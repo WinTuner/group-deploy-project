@@ -7,11 +7,21 @@ app.use(express.json());
 let orders = [];
 let seq = 1;
 
+const PRODUCT_SERVICE_URL = process.env.PRODUCT_SERVICE_URL || 'http://localhost:3002';
+
 app.get('/orders', (req, res) => res.json(orders));
-app.post('/orders', (req, res) => {
+app.post('/orders', async (req, res) => {
   const { productId, qty } = req.body || {};
   if (!productId || !qty) return res.status(400).json({ error: 'productId & qty required' });
   if (Number(qty) <= 0) return res.status(400).json({ error: 'qty must be > 0' });
+  // inter-service call: สินค้าต้องมีจริงใน product-service ถึงรับออเดอร์
+  // shortcut: fail-open ตอน product-service ล่ม (unit test ไม่ต้องพึ่ง service อื่น), เปิด STRICT_PRODUCT_CHECK=1 เพื่อ fail-closed
+  try {
+    const r = await fetch(`${PRODUCT_SERVICE_URL}/products/${Number(productId)}`, { signal: AbortSignal.timeout(3000) });
+    if (r.status === 404) return res.status(400).json({ error: 'product not found' });
+  } catch {
+    if (process.env.STRICT_PRODUCT_CHECK === '1') return res.status(503).json({ error: 'product-service unavailable' });
+  }
   const o = { id: seq++, productId: Number(productId), qty: Number(qty), status: 'created', createdAt: new Date().toISOString() };
   orders.push(o);
   res.status(201).json(o);

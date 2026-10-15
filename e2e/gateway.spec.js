@@ -38,7 +38,13 @@ test('login รหัสผิดผ่าน gateway ได้ 401', async ({ r
   expect(r.status()).toBe(401);
 });
 
-test('CRUD สินค้าผ่าน gateway', async ({ request }) => {
+test('order-service เช็ค product-service: สินค้าไม่มีจริงต้อง 400', async ({ request }) => {
+  const r = await request.post('/api/orders/orders', {
+    data: { productId: 999999, qty: 1 },
+  });
+  expect(r.status()).toBe(400);
+  expect((await r.json()).error).toBe('product not found');
+});
   const created = await request.post('/api/products/products', {
     data: { name: 'E2E-Monitor', price: 4990 },
   });
